@@ -669,15 +669,15 @@ static ssize_t rwrap_fake_txt(struct rwrap_fake_rr *rr,
 	uint8_t *a = answer;
 	ssize_t resp_size;
 	size_t rdata_size;
-	size_t txt_len;
+	uint8_t txt_len;
 
 	if (rr->type != ns_t_txt) {
 		RWRAP_LOG(RWRAP_LOG_ERROR, "Wrong type!\n");
 		return -1;
 	}
 	RWRAP_LOG(RWRAP_LOG_TRACE, "Adding TXT RR");
-	txt_len = strlen(rr->rrdata.txt_rec) + 1;
-	rdata_size = txt_len;
+	txt_len = strlen(rr->rrdata.txt_rec);
+	rdata_size = txt_len + 1; //Length of text + text
 
 	resp_size = rwrap_fake_rdata_common(ns_t_txt, rdata_size,
 					    rr->key, anslen, &a);
@@ -685,6 +685,11 @@ static ssize_t rwrap_fake_txt(struct rwrap_fake_rr *rr,
 		return -1;
 	}
 
+	//Copy length of text
+	a[0] = txt_len;
+	a = a + 1;
+
+	//Copy text
 	memcpy(a, rr->rrdata.txt_rec, txt_len);
 
 	return resp_size;

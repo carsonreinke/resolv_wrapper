@@ -722,6 +722,7 @@ static void test_res_fake_txt_query(void **state)
 	ns_msg handle;
 	ns_rr rr;   /* expanded resource record */
 	const uint8_t *rrdata;
+	uint8_t txt_len;
 
 	(void) state; /* unused */
 
@@ -744,7 +745,13 @@ static void test_res_fake_txt_query(void **state)
 	assert_int_equal(ns_parserr(&handle, ns_s_an, 0, &rr), 0);
 	assert_int_equal(ns_rr_type(rr), ns_t_txt);
 
+	//Length of text
 	rrdata = ns_rr_rdata(rr);
+	txt_len = rrdata[0];
+	assert_int_equal(txt_len, 9); //9 = Length of "v=spf1 mx"
+
+	//Text
+	rrdata = rrdata + 1;
 	assert_string_equal(rrdata, "v=spf1 mx");
 }
 
